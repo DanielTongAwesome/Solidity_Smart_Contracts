@@ -1,7 +1,7 @@
 /*
  * @Author: Daniel Tong
  * @Date: 2020-02-06 20:12:59
- * @LastEditTime : 2020-02-06 22:35:40
+ * @LastEditTime : 2020-02-07 19:05:37
  * @LastEditors  : Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /Smart_Contract/Inbox/test/Inbox.test.js
@@ -9,7 +9,11 @@
 const assert = require('assert');
 const ganache = require('ganache-cli');
 const Web3 = require('web3');
-const web3 = new Web3(ganache.provider())
+
+// UPDATE THESE TWO LINES RIGHT HERE!!!!! <-----------------
+const provider = ganache.provider();
+const web3 = new Web3(provider);
+
 const { interface, bytecode } = require('../compile');
 
 
@@ -27,9 +31,22 @@ beforeEach( async () => {
         .send({ from: accounts[0], gas: '1000000' });
 });
 
-describe('Inbox', ()=>{
-    it('deploys a contract', ()=>{
-        console.log(inbox);
+describe('Inbox', () => {
+    // test 1
+    it('deploys a contract', () => {
+        //console.log(inbox);
+        assert.ok(inbox.options.address);
+    });
+    // test 2
+    it('has a default message', async () => {
+        const message = await inbox.methods.message().call();
+        assert.equal(message, 'Hello World !');
+    });
+    // test 3
+    it('can change the message', async () => {
+        await inbox.methods.setMessage('Hello from the other side').send({ from: accounts[0]});
+        const message = await inbox.methods.message().call();
+        assert.equal(message, 'Hello from the other side');
     });
 });
 
